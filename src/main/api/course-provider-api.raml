@@ -1,0 +1,118 @@
+#%RAML 1.0
+---
+title: Course provider API
+version: v1
+protocols: [ HTTP ]
+baseUri: https://mocksvc.mulesoft.com/mocks/155f4e41-1662-4740-8bf4-493ee1681243/services/ # baseUri: http://api.muleTechnicalTest.com/services/
+mediaType: application/json
+
+types:
+  Course: !include data_types/course_data_type.raml
+
+resourceTypes:
+  readOnlycollection:
+    description: List of available <<resourcePathName>> from Student Administration System (SAS)
+    get:
+      description: Get the list of all available <<resourcePathName>> from Student Administration System (SAS)
+      responses:
+        200:
+          body:
+            application/json:
+              example: <<exampleCollection>>
+        204:
+          body: 
+            application/json:
+              example: <<exampleDataNotFound>>
+              
+  collection-item:
+      description: An available <<resourcePathName|!singularize>> from SAS
+      get:
+        description: Gets a specific <<resourcePathName|!singularize>> from SAS
+        responses:
+          200:
+            body:
+              application/json:
+                example: <<exampleItem>>
+          204:
+            body: 
+              application/json:
+                example: <<exampleDataNotFound>>
+traits:
+  pageable:
+    queryParameters:
+      offset:
+        description: Skip over specified number of elements
+        type: number
+        required: false
+        example: 20
+        default: 0
+      limit:
+        description: Limits the number of elements in the response
+        type: number
+        required: false
+        example: 80
+        default: 10
+          
+/courses:
+  type:
+    readOnlycollection:
+      #exampleCollection: !include examples/response_examples/courses-example.raml
+      exampleCollection: !include examples/response_examples/courses-example.json
+      exampleDataNotFound: !include examples/response_examples/data_not_found.json
+  
+  get:
+    is: [
+          pageable
+        ]
+        
+    responses:
+      200:
+        body:
+          application/json:
+      204:
+          body:
+            application/json:
+      
+  /{courseId}:
+    type:
+      collection-item:
+        #exampleItem: !include examples/response_examples/course-example.raml
+        exampleItem: !include examples/response_examples/course-example.json
+        exampleDataNotFound: !include examples/response_examples/data_not_found.json
+      
+    get:
+      responses:
+        200:
+          body:
+            application/json:
+        204:
+          body:
+            application/json:
+
+  /latest:
+    type:
+      readOnlycollection:
+        #exampleCollection: !include examples/response_examples/courses-example.raml
+        exampleCollection: !include examples/response_examples/courses-example.json
+        exampleDataNotFound: !include examples/response_examples/data_not_found.json
+    
+    get:
+      is: [
+            pageable
+          ]
+      
+      queryParameters:
+        duration:
+          description: Represents howmany months old courses need to be pulled
+          type: integer
+          required: false
+          example: 6
+          default: 6
+
+      responses:
+        200:
+          body:
+            application/json:
+        204:
+          body:
+            application/json:

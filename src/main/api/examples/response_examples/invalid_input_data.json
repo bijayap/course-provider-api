@@ -1,0 +1,8 @@
+{
+  "error" : {
+              "errorMessage": "Input Data Invalid",
+              "errorDescription": "Could Not Find Any <<resourcePathName|!singularize>> matching for the duration"
+            },
+  "success": false,
+  "status": 204
+}

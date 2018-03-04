@@ -1,0 +1,1 @@
+select * from course_details where listed_on >= dateadd(month, -:duration, getdate()) order by id;

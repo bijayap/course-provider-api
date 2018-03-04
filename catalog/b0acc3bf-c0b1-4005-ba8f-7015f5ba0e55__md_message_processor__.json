@@ -1,0 +1,11 @@
+{
+    "inputMessageMetadata": {},
+    "outputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "#_custom_mule_metadata_type_#",
+            "typeId": "courses"
+        }
+    },
+    "id": "b0acc3bf-c0b1-4005-ba8f-7015f5ba0e55",
+    "version": "5.2.0.0"
+}

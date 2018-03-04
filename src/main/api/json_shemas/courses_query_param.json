@@ -1,0 +1,36 @@
+{
+    "title": "course_query_param",
+    "type": "object",
+    "properties": {
+        "field": {
+            "type": "string",
+            "required": "false",
+            "default": "NULL"
+        },
+        "code": {
+            "type": "string",
+            "required":"false",
+            "default": "NULL"
+        },
+        "level": {
+            "type": "string",
+            "required":"false",
+            "default": "NULL"
+        },
+        "mode": {
+            "type": "string",
+            "required":"false",
+            "default": "NULL"
+        },
+        "duration": {
+            "type": "integer",
+            "required":"false",
+            "default": "0"
+        },
+        "begins": {
+            "type": "string",
+            "required":"false",
+            "default": "NULL"
+        },        
+    },
+}

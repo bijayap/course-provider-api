@@ -1,0 +1,16 @@
+{
+	"course": [
+		{
+			"courseId": "1",
+			"code": "ENGCSDS0001",
+			"name": "Data Science",
+			"field": "Engineering",
+			"fees": "45000",
+			"mode": "Online",
+			"level": "Masters",
+			"begins": "01-MAY-2018"
+		}
+	],
+	"success": true,
+	"status": 200
+}

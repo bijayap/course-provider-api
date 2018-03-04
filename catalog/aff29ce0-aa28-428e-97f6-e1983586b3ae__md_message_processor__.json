@@ -1,0 +1,13 @@
+{
+    "inputMessageMetadata": {},
+    "outputMessageMetadata": {
+        "flowVariables": {
+            "course_query_param": {
+                "connectorName": "#_custom_mule_metadata_type_#",
+                "typeId": "courses_query_param_type"
+            }
+        }
+    },
+    "id": "aff29ce0-aa28-428e-97f6-e1983586b3ae",
+    "version": "5.2.0.0"
+}

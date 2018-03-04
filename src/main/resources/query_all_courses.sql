@@ -1,0 +1,1 @@
+select * from course_details order by ID;
