@@ -42,12 +42,14 @@ traits:
     queryParameters:
       offset:
         description: Skip over specified number of elements
+        displayName: Page offset
         type: number
         required: false
         example: 20
         default: 0
       limit:
         description: Limits the number of elements in the response
+        displayName: Page Limit
         type: number
         required: false
         example: 80
@@ -104,6 +106,7 @@ traits:
       queryParameters:
         duration:
           description: Represents howmany months old courses need to be pulled
+          displayName: Time Duration in months
           type: integer
           required: false
           example: 6

@@ -37,7 +37,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
         <flow-ref name="getCourseIdFlow" doc:name="getCourseIdFlow"/>
     </flow>
 	<flow name="get:/courses/latest:course-provider-api-config">
-        <flow-ref name="getLatestCourse" doc:name="getLatestCourse"/>
+        <flow-ref name="getLatestCoursesFlow" doc:name="getLatestCoursesFlow"/>
 
 	</flow>
 
@@ -83,7 +83,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 				value="org.mule.module.apikit.exception.BadRequestException" />
 			<set-property propertyName="Content-Type" value="application/json"
 				doc:name="Property" />
-			<set-payload value="{ &quot;message&quot;: &quot;Bad request&quot; }"
+			<set-payload value="{ &quot;message&quot;: &quot;Bad Request&quot; }"
 				doc:name="Set Payload" />
 		</apikit:mapping>
 	</apikit:mapping-exception-strategy>

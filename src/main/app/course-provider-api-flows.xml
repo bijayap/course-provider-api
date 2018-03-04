@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking"
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking"
 	xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata"
 	xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:db="http://www.mulesoft.org/schema/mule/db"
 	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core"
@@ -25,29 +26,35 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
 		doc:name="Template Query">
 		<db:parameterized-query file="query_course_by_id.sql" />
 	</db:template-query>
-    <db:template-query name="fetch_all_latest_courses" doc:name="Template Query">
-        <db:parameterized-query file="query_all_latest_courses.sql"/>
-    </db:template-query>
-    <ee:object-store-caching-strategy name="All_Courses_Caching_Strategy" keyGenerationExpression="#[flowVars.cacheKey]" doc:name="Caching Strategy">
-        <in-memory-store name="all_courses_chache" maxEntries="${maxEntryForCachingAllCourses}" entryTTL="${ttlForCachingAllCourses}" expirationInterval="${expireIntervalForCachingAllCourses}"/>
-    </ee:object-store-caching-strategy>
+	<db:template-query name="fetch_all_latest_courses"
+		doc:name="Template Query">
+		<db:parameterized-query file="query_all_latest_courses.sql" />
+	</db:template-query>
+	<ee:object-store-caching-strategy
+		name="All_Courses_Caching_Strategy" keyGenerationExpression="#[flowVars.cacheKey]"
+		doc:name="Caching Strategy">
+		<in-memory-store name="all_courses_chache"
+			maxEntries="${maxEntryForCachingAllCourses}" entryTTL="${ttlForCachingAllCourses}"
+			expirationInterval="${expireIntervalForCachingAllCourses}" />
+	</ee:object-store-caching-strategy>
 	<flow name="getCoursesFlow">
-        <flow-ref name="validateInputData" doc:name="Flow Reference"/>
-        <message-properties-transformer encoding="ISO-8859-4" scope="invocation" doc:name="Initialize Page Counters">
-            <add-message-property key="startCourseId" value="#[message.inboundProperties.'http.query.params'.offset]"/>
-            <add-message-property key="endCourseId" value="#[Integer.parseInt(message.inboundProperties.'http.query.params'.offset) + Integer.parseInt(message.inboundProperties.'http.query.params'.limit)]"/>
-            <add-message-property key="currentLimit" value="#[message.inboundProperties.'http.query.params'.limit]"/>
-        </message-properties-transformer>
-        <set-variable variableName="cacheKey" value="#[message.inboundProperties.'http.request.path']" doc:name="Set cacheKey"/>
-        <ee:cache cachingStrategy-ref="All_Courses_Caching_Strategy" doc:name="Caching courses information">
-            <db:select config-ref="Generic_Database_Configuration1" doc:name="Get courses from DB">
-                <db:template-query-ref name="fetch_all_courses"/>
-            </db:select>
-            <logger message="&quot;Query Response from DB --&gt;&quot; #[payload]" level="INFO" doc:name="Debug Log"/>
-        </ee:cache>
-		<logger message="&quot;Query Response from cache --&gt;&quot; #[payload]" level="INFO" doc:name="Debug Log" />
-        <set-variable variableName="currentCourseList" value="#[payload.subList(flowVars.startCourseId,flowVars.endCourseId)]" doc:name="Set currentCourseList"/>
-        <set-variable variableName="totalCourseCount" value="#[payload.size()]" doc:name="Set totalCourseCount"/>
+        <flow-ref name="initialDataValidation" doc:name="initialDataValidation"/>
+        <flow-ref name="setPageAndcacheKey" doc:name="setPageAndcacheKey"/>
+		<ee:cache cachingStrategy-ref="All_Courses_Caching_Strategy"
+			doc:name="Caching courses information">
+			<db:select config-ref="Generic_Database_Configuration1"
+				doc:name="Get courses from DB">
+				<db:template-query-ref name="fetch_all_courses" />
+			</db:select>
+			<logger message="&quot;Query Response from DB --&gt;&quot; #[payload]"
+				level="INFO" doc:name="Debug Log" />
+		</ee:cache>
+		<logger message="&quot;Query Response from cache --&gt;&quot; #[payload]"
+			level="INFO" doc:name="Debug Log" />
+        <flow-ref name="validateAndSetCounters" doc:name="validateAndSetCounters"/>
+		<set-variable variableName="currentCourseList"
+			value="#[payload.subList(flowVars.startCourseId,flowVars.endCourseId)]"
+			doc:name="Set currentCourseList" />
 		<dw:transform-message doc:name="Building Response">
 			<dw:set-payload><![CDATA[%dw 1.0
 %output application/json
@@ -73,43 +80,55 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
 	status: 200
 }]]></dw:set-payload>
 		</dw:transform-message>
+        <exception-strategy ref="GeneralExceptionStrategy" doc:name="Reference Exception Strategy"/>
 	</flow>
-    <flow name="validateInputData">
-        <logger message="inside validateInputData" level="INFO" doc:name="Logger"/>
-        <validation:matches-regex message="offset and limit should numbers between 0 to number of courses required" value="#[message.inboundProperties.'http.query.params'.offset]" regex="^[-]" doc:name="Validation"/>
-        <choice-exception-strategy doc:name="Choice Exception Strategy">
-            <catch-exception-strategy when="#[exception.causedBy(org.mule.extension.validation.api.ValidationException)]" doc:name="Catch Input Data Validation Exceptions">
-                <logger message="inside exception strategy" level="INFO" doc:name="Logger"/>
-                <message-properties-transformer scope="invocation" doc:name="Set Error Message and Description">
-                    <add-message-property key="errorMessage" value="&quot;Input Data Invalid&quot;"/>
-                    <add-message-property key="errorDescription" value="#[exception.message.toString()]"/>
-                    <add-message-property key="successFlag" value="&quot;false&quot;"/>
-                </message-properties-transformer>
-                <set-property propertyName="http.status" value="400" doc:name="Set HTTP Status code"/>
-                <set-property propertyName="http.reason" value="&quot;Bad Request&quot;" doc:name="Set HTTP Reason"/>
-                <dw:transform-message doc:name="Transform Message">
-                    <dw:set-payload><![CDATA[%dw 1.0
-%output application/java
+    <flow name="getLatestCoursesFlow">
+        <flow-ref name="initialDataValidation" doc:name="initialDataValidation"/>
+        <validation:matches-regex message="duration value should be more than 1" value="#[message.inboundProperties.'http.query.params'.duration]" regex="^\d+$" doc:name="Validate duration"/>
+        <flow-ref name="setPageAndcacheKey" doc:name="setPageAndcacheKey"/>
+        <ee:cache doc:name="Caching course information">
+            <db:select config-ref="Generic_Database_Configuration1" doc:name="Getting From Database">
+                <db:template-query-ref name="fetch_all_latest_courses"/>
+                <db:in-param name="duration" type="INTEGER" value="#[message.inboundProperties.'http.query.params'.duration]"/>
+            </db:select>
+            <logger level="INFO" doc:name="Debug Log"/>
+        </ee:cache>
+        <logger message="#[payload]" level="DEBUG" doc:name="Debug Log"/>
+        <flow-ref name="validateAndSetCounters" doc:name="validateAndSetCounters"/>
+        <set-variable variableName="currentCourseList" value="#[payload.subList(flowVars.startCourseId,flowVars.endCourseId)]" doc:name="Set currentCourseList"/>
+        <dw:transform-message doc:name="Building Response">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
 ---
 {
-	"error" : {
-      "errorMessage": flowVars.errorMessage,
-      "errorDescription": flowvars.errorDescription
-    },
-    "success": flowVars.successFlag,
-    "status": http.status
+	nextOffSet: flowVars.endCourseId,
+	currentLimit: flowVars.currentLimit,
+	totalCourses: flowVars.totalCourseCount,
+	remainingCourses: flowVars.totalCourseCount - flowVars.endCourseId,
+	courses: flowVars.currentCourseList map {
+		courseId: $.ID,
+		code: $.CODE,
+		name: $.NAME,
+		field: $.FIELD,
+		level: $.LEVEL,
+		mode: $.MODE,
+		begins: $.BEGINS,
+		duration: $.DURATION,
+		fees: $.FEES,
+		listed_on: $.LISTED_ON
+	},
+	success: true,
+	status: 200
 }]]></dw:set-payload>
-                </dw:transform-message>
-            </catch-exception-strategy>
-        </choice-exception-strategy>
+        </dw:transform-message>
+        <exception-strategy ref="GeneralExceptionStrategy" doc:name="Reference Exception Strategy"/>
     </flow>
-	<flow name="getCourseIdFlow">
-		<db:select config-ref="Generic_Database_Configuration1"
-			doc:name="Getting From Database">
-			<db:template-query-ref name="fetch_course_by_id" />
-			<db:in-param name="id" type="INTEGER" value="#[flowVars.courseId]" />
-		</db:select>
-		<logger level="DEBUG" doc:name="Logging For Debugging" message="#[payload]"/>
+    <flow name="getCourseIdFlow">
+        <db:select config-ref="Generic_Database_Configuration1" doc:name="Getting From Database">
+            <db:template-query-ref name="fetch_course_by_id"/>
+            <db:in-param name="id" type="INTEGER" value="#[flowVars.courseId]"/>
+        </db:select>
+        <logger message="#[payload]" level="DEBUG" doc:name="Logging For Debugging"/>
         <dw:transform-message doc:name="Building Response" metadata:id="b0acc3bf-c0b1-4005-ba8f-7015f5ba0e55">
             <dw:set-payload><![CDATA[%dw 1.0
 %output application/json
@@ -131,34 +150,38 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
 	status: 200	
 }]]></dw:set-payload>
         </dw:transform-message>
-	</flow>
-	<flow name="getLatestCourse">
-        <db:select config-ref="Generic_Database_Configuration1" doc:name="Getting From Database">
-            <db:template-query-ref name="fetch_all_latest_courses"/>
-            <db:in-param name="duration" type="INTEGER" value="#[message.inboundProperties.'http.query.params'.duration]"/>
-        </db:select>
-        <logger message="#[payload]" level="DEBUG" doc:name="Logging For Debugging"/>
-        <dw:transform-message doc:name="Building Response">
-            <dw:set-payload><![CDATA[%dw 1.0
-%output application/json
----
-{
-	courses: payload map {
-		courseId: $.ID,
-		code: $.CODE,
-		name: $.NAME,
-		field: $.FIELD,
-		level: $.LEVEL,
-		mode: $.MODE,
-		begins: $.BEGINS,
-		duration: $.DURATION,
-		fees: $.FEES,
-		listed_on: $.LISTED_ON
-	},
-	success: true,
-	status: 200
-}]]></dw:set-payload>
-        </dw:transform-message>
+        <exception-strategy ref="GeneralExceptionStrategy" doc:name="Reference Exception Strategy"/>
+    </flow>
+    <sub-flow name="initialDataValidation">
+        <validation:matches-regex message="offset value should be 0 or greater than 1" value="#[message.inboundProperties.'http.query.params'.offset]" regex="^\d+$" doc:name="Validate offset"/>
+        <validation:matches-regex message="limit value should be greater than 1" value="#[message.inboundProperties.'http.query.params'.limit]" regex="^\d+$" doc:name="Validate limit"/>
+    </sub-flow>
+    <sub-flow name="setPageAndcacheKey">
+        <message-properties-transformer encoding="ISO-8859-4" scope="invocation" doc:name="Initialize Page Counters">
+            <add-message-property key="startCourseId" value="#[message.inboundProperties.'http.query.params'.offset]"/>
+            <add-message-property key="endCourseId" value="#[Integer.parseInt(message.inboundProperties.'http.query.params'.offset) + Integer.parseInt(message.inboundProperties.'http.query.params'.limit)]"/>
+            <add-message-property key="currentLimit" value="#[message.inboundProperties.'http.query.params'.limit]"/>
+        </message-properties-transformer>
+        <set-variable variableName="cacheKey" value="#[message.inboundProperties.'http.request.path']" doc:name="Set cacheKey"/>
+    </sub-flow>
+    <sub-flow name="validateAndSetCounters">
+        <set-variable variableName="totalCourseCount" value="#[payload.size()]" doc:name="Set totalCourseCount"/>
+        <choice doc:name="Choice">
+            <when expression="#[flowVars.startCourseId &gt; flowVars.totalCourseCount]">
+                <set-variable variableName="startCourseId" value="0" doc:name="Reset startCourseId"/>
+            </when>
+            <otherwise>
+                <logger message="Into Default Flow for startCourseId Reset - ALL is Well" level="INFO" doc:name="Logger"/>
+            </otherwise>
+        </choice>
+        <choice doc:name="Choice">
+            <when expression="#[flowVars.endCourseId &gt; flowVars.totalCourseCount]">
+                <set-variable variableName="endCourseId" value="#[flowVars.totalCourseCount]" doc:name="Reset endCourseId"/>
+            </when>
+            <otherwise>
+                <logger message="Into Default Flow for endCourseId Reset - ALL is Well" level="INFO" doc:name="Logger"/>
+            </otherwise>
+        </choice>
+    </sub-flow>
 
-	</flow>
 </mule>
