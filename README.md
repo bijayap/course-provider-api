@@ -225,6 +225,7 @@ If got more time then would like to investigate or implement for below improveme
 2. To run the h2 database in embedded mode
 3. Decouple the database calls to a separate module and re-use it from main flows
 4. Implement fault configuration and security principles from FCAPS including authorization
+5. Added Munit cases for sub-flows as well
 
 At the end I would like to thank for giving me an opportunity to explore Mule. I enjoyed doing this exercise
 and learned a lot about Mule and use Anypoint Studio for development, Munit for unit testing and Mule Designer
