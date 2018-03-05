@@ -179,6 +179,10 @@ not working
 Note: The H2 Database need to run in server mode before the project is being tested to avoid database 
 connection issue.
 ```
+Unit Testing:
+```
+The Munit test suites are located under "src/test/munit" for unit testing
+```
 Challenges Faced:
 ```
 1. Being new to Mule had to face many challenges however it was a very good learning exercise
