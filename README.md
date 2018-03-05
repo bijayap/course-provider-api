@@ -3,11 +3,13 @@
 The Course Provider API lets consumers query courses from Student Administration System (SAS).
  
 This document describes the services provided by this API, their brief usage followed by
-instructions to install, .
-```
+instructions to install.
+
 Service Description:
 ```
-The Course Provider API provides three services:
+The Course Provider API provides three services.
+```
+
 1st Services: Get All Courses
 ```
 This service provides all the available courses on SAS system.
@@ -167,9 +169,9 @@ in "course-provider-api.properties" present at "src/main/resources" for Database
 "course-provider-api.properties" present at "src/main/resources" for HTTP connection
 
 6. Check the required "h2-1.4.196.jar" for Database connection is present in the build path
-if not then add "src/main/resources/lib/h2-1.4.196.jar" as an external jar to the build path. 
+if not then add "src/main/resources/h2-1.4.196.jar" as an external jar to the build path. 
 
-7. If running the project with Maven support, then please copy the "h2-1.4.196.jar" from "src/main/resources/lib/"
+7. If running the project with Maven support, then please copy the "h2-1.4.196.jar" from "src/main/resources/"
 to Maven repository path like ".m2\repository\org\h2\h2\1.4.196" because some how downloaded jar by Maven is not working.
 
 8. Now the project is configured and can be deployed or run using Anypoint Studio or mule standalone.
@@ -226,7 +228,7 @@ If got more time then would like to investigate or implement for below improveme
 3. Decouple the database calls to a separate module and re-use it from main flows
 4. Implement fault configuration and security principles from FCAPS including authorization
 5. Added Munit cases for sub-flows as well
-
+```
 At the end I would like to thank for giving me an opportunity to explore Mule. I enjoyed doing this exercise
 and learned a lot about Mule and use Anypoint Studio for development, Munit for unit testing and Mule Designer
 to build the RAML.
