@@ -1,0 +1,1 @@
+The Course Provider API lets consumers query courses from Student Administration System (SAS). This document describes how to use RESTful calling style to retrieve courses information.
