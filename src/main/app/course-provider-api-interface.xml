@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit"
-	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:spring="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking"
+	xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata"
+	xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:spring="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/apikit http://www.mulesoft.org/schema/mule/apikit/current/mule-apikit.xsd
@@ -11,13 +13,11 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
 http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
 http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
 http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
-	<http:listener-config name="course-provider-api-httpListenerConfig"
-		host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration" />
 	<apikit:config name="course-provider-api-config" raml="course-provider-api.raml"
 		consoleEnabled="false" doc:name="Router" />
 	<flow name="course-provider-api-main">
 		<http:listener config-ref="course-provider-api-httpListenerConfig"
-			path="/api/*" doc:name="HTTP" />
+			path="${httpBaseUri}" doc:name="HTTP" />
 		<apikit:router config-ref="course-provider-api-config"
 			doc:name="APIkit Router" />
 		<exception-strategy ref="course-provider-api-apiKitGlobalExceptionMapping"
@@ -30,17 +30,14 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 			doc:name="APIkit Console" />
 	</flow>
 	<flow name="get:/courses:course-provider-api-config">
-        <flow-ref name="getCoursesFlow" doc:name="getCoursesFlow"/>
-
+		<flow-ref name="getCoursesFlow" doc:name="getCoursesFlow" />
 	</flow>
-    <flow name="get:/courses/{courseId}:course-provider-api-config">
-        <flow-ref name="getCourseIdFlow" doc:name="getCourseIdFlow"/>
-    </flow>
+	<flow name="get:/courses/{courseId}:course-provider-api-config">
+		<flow-ref name="getCourseIdFlow" doc:name="getCourseIdFlow" />
+	</flow>
 	<flow name="get:/courses/latest:course-provider-api-config">
-        <flow-ref name="getLatestCoursesFlow" doc:name="getLatestCoursesFlow"/>
-
+		<flow-ref name="getLatestCoursesFlow" doc:name="getLatestCoursesFlow" />
 	</flow>
-
 	<apikit:mapping-exception-strategy
 		name="course-provider-api-apiKitGlobalExceptionMapping">
 		<apikit:mapping statusCode="404">
@@ -49,7 +46,14 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 			<set-property propertyName="Content-Type" value="application/json"
 				doc:name="Property" />
 			<set-payload
-				value="{ &quot;message&quot;: &quot;Resource not found&quot; }"
+				value="{
+    &quot;error&quot;: {
+        &quot;errorMessage&quot;: &quot;Resource not found&quot;,
+        &quot;errorDescription&quot;: &quot;Requested resource is not supported.&quot;
+    },
+    &quot;success&quot;: &quot;false&quot;,
+    &quot;status&quot;: &quot;404&quot;
+}"
 				doc:name="Set Payload" />
 		</apikit:mapping>
 		<apikit:mapping statusCode="405">
@@ -58,7 +62,14 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 			<set-property propertyName="Content-Type" value="application/json"
 				doc:name="Property" />
 			<set-payload
-				value="{ &quot;message&quot;: &quot;Method not allowed&quot; }"
+				value="{
+    &quot;error&quot;: {
+        &quot;errorMessage&quot;: &quot;Method not allowed&quot;,
+        &quot;errorDescription&quot;: &quot;Requested method is not allowed or supported.&quot;
+    },
+    &quot;success&quot;: &quot;false&quot;,
+    &quot;status&quot;: &quot;405&quot;
+}"
 				doc:name="Set Payload" />
 		</apikit:mapping>
 		<apikit:mapping statusCode="415">
@@ -67,7 +78,14 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 			<set-property propertyName="Content-Type" value="application/json"
 				doc:name="Property" />
 			<set-payload
-				value="{ &quot;message&quot;: &quot;Unsupported media type&quot; }"
+				value="{
+    &quot;error&quot;: {
+        &quot;errorMessage&quot;: &quot;Unsupported media type&quot;,
+        &quot;errorDescription&quot;: &quot;Media type is not supported.&quot;
+    },
+    &quot;success&quot;: &quot;false&quot;,
+    &quot;status&quot;: &quot;415&quot;
+}"
 				doc:name="Set Payload" />
 		</apikit:mapping>
 		<apikit:mapping statusCode="406">
@@ -75,7 +93,14 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 				value="org.mule.module.apikit.exception.NotAcceptableException" />
 			<set-property propertyName="Content-Type" value="application/json"
 				doc:name="Property" />
-			<set-payload value="{ &quot;message&quot;: &quot;Not acceptable&quot; }"
+			<set-payload value="{
+    &quot;error&quot;: {
+        &quot;errorMessage&quot;: &quot;Not acceptable&quot;,
+        &quot;errorDescription&quot;: &quot;Data format is not acceptable.&quot;
+    },
+    &quot;success&quot;: &quot;false&quot;,
+    &quot;status&quot;: &quot;406&quot;
+}"
 				doc:name="Set Payload" />
 		</apikit:mapping>
 		<apikit:mapping statusCode="400">
@@ -83,7 +108,14 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 				value="org.mule.module.apikit.exception.BadRequestException" />
 			<set-property propertyName="Content-Type" value="application/json"
 				doc:name="Property" />
-			<set-payload value="{ &quot;message&quot;: &quot;Bad Request&quot; }"
+			<set-payload value="{
+    &quot;error&quot;: {
+        &quot;errorMessage&quot;: &quot;Bad Request&quot;,
+        &quot;errorDescription&quot;: &quot;Parameter values submitted are not correct.&quot;
+    },
+    &quot;success&quot;: &quot;false&quot;,
+    &quot;status&quot;: &quot;400&quot;
+}"
 				doc:name="Set Payload" />
 		</apikit:mapping>
 	</apikit:mapping-exception-strategy>

@@ -1,26 +1,34 @@
 {
-	"courses": [
-		{
-			"courseId": "1",
-			"code": "ENGCSDS0001",
-			"name": "Data Science",
-			"field": "Engineering",
-			"fees": "45000",
-			"mode": "Online",
-			"level": "Masters",
-			"begins": "01-MAY-2018"
-		},
-		{
-			"courseId": "2",
-			"code": "ENGCSDS0002",
-			"name": "Data Science",
-			"field": "Engineering",
-			"fees": "45000",
-			"mode": "Online",
-			"level": "Degree",
-			"begins": "01-MAY-2018"
-		}
-	],
-	"success": true,
-	"status": 200
+    "nextOffSet": 2,
+    "currentLimit": "2",
+    "totalCourses": 292,
+    "remainingCourses": 290,
+    "courses": [
+        {
+            "courseId": 1,
+            "code": "COMP1",
+            "name": "COMP1",
+            "field": "ENGINEERING",
+            "level": "MS",
+            "mode": "ONLINE",
+            "begins": "2016-12-12T00:00:00",
+            "duration": 1,
+            "fees": 300,
+            "listed_on": "2017-07-01T00:00:00"
+        },
+        {
+            "courseId": 2,
+            "code": "COMP2",
+            "name": "COMP2",
+            "field": "ENGINEERING",
+            "level": "MS",
+            "mode": "ONLINE",
+            "begins": "2017-01-12T00:00:00",
+            "duration": 1,
+            "fees": 300,
+            "listed_on": "2017-07-02T00:00:00"
+        }
+    ],
+    "success": true,
+    "status": 200
 }

@@ -1,7 +1,7 @@
 {
   "error" : {
               "errorMessage": "Input Data Invalid",
-              "errorDescription": "Could Not Find Any <<resourcePathName|!singularize>> matching for the duration"
+              "errorDescription": "limit value should be greater than 1"
             },
   "success": false,
   "status": 400

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:spring="http://www.springframework.org/schema/beans"
+	xmlns:core="http://www.mulesoft.org/schema/mule/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd">
+	<munit:config name="munit" doc:name="MUnit configuration" />
+	<spring:beans>
+		<spring:import resource="classpath:course-provider-api-flows.xml" />
+		<spring:import resource="classpath:course-provider-api-error-handler.xml" />
+		<spring:import resource="classpath:config.xml" />
+	</spring:beans>
+	<munit:test name="test-course-query-for-id-1"
+		description="Test">
+		<munit:set payload="#['']" doc:name="Seet input message">
+			<munit:inbound-properties>
+				<munit:inbound-property key="http.request.uri"
+					value="#['/api/courses/1']" />
+			</munit:inbound-properties>
+		</munit:set>
+		<flow-ref name="getCourseIdFlow" doc:name="Flow-ref to getCourseIdFlow" />
+		<munit:assert-not-null message="response shouldn't be empty"
+			doc:name="Assert Not Null Payload" />
+	</munit:test>
+	<munit:test name="test-course-query-for-id-299"
+		description="Test">
+		<munit:set payload="#['']" doc:name="Seet input message">
+			<munit:inbound-properties>
+				<munit:inbound-property key="http.request.uri"
+					value="#['/api/courses/299']" />
+			</munit:inbound-properties>
+		</munit:set>
+		<flow-ref name="getCourseIdFlow" doc:name="Flow-ref to getCourseIdFlow" />
+		<munit:assert-not-null message="response shouldn't be empty"
+			doc:name="Assert Not Null Payload" />
+	</munit:test>
+	<munit:test name="test-course-query-for-id-100"
+		description="Test">
+		<munit:set payload="#['']" doc:name="Seet input message">
+			<munit:inbound-properties>
+				<munit:inbound-property key="http.request.uri"
+					value="#['/api/courses/100']" />
+			</munit:inbound-properties>
+		</munit:set>
+		<flow-ref name="getCourseIdFlow" doc:name="Flow-ref to getCourseIdFlow" />
+		<munit:assert-not-null message="response shouldn't be empty"
+			doc:name="Assert Not Null Payload" />
+	</munit:test>
+	<munit:test name="test-course-query-for-id--1"
+		description="Test">
+		<munit:set payload="#['']" doc:name="Seet input message">
+			<munit:inbound-properties>
+				<munit:inbound-property key="http.request.uri"
+					value="#['/api/courses/-1']" />
+			</munit:inbound-properties>
+		</munit:set>
+		<flow-ref name="getCourseIdFlow" doc:name="Flow-ref to getCourseIdFlow" />
+        <munit:assert-on-equals message="HTTP Status code is not 400 instead #[flowVars.statusCode]" expectedValue="400" actualValue="#[flowVars.statusCode]" doc:name="Assert Equals 400"/>
+	</munit:test>
+	<munit:test name="test-course-query-for-id-abc"
+		description="Test">
+		<munit:set payload="#['']" doc:name="Seet input message">
+			<munit:inbound-properties>
+				<munit:inbound-property key="http.request.uri"
+					value="#['/api/courses/abc']" />
+			</munit:inbound-properties>
+		</munit:set>
+		<flow-ref name="getCourseIdFlow" doc:name="Flow-ref to getCourseIdFlow" />
+        <munit:assert-on-equals message="HTTP Status code is not 400 instead #[flowVars.statusCode]" expectedValue="400" actualValue="#[flowVars.statusCode]" doc:name="Assert Equals 400"/>
+	</munit:test>
+</mule>

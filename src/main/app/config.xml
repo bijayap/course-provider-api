@@ -1,10 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<mule xmlns:context="http://www.springframework.org/schema/context" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:spring="http://www.springframework.org/schema/beans" 
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-current.xsd">
-    <context:property-placeholder location="course-provider-api.properties"/>
+	<context:property-placeholder location="course-provider-api.properties" />
+	<db:generic-config name="Generic_Database_Configuration1"
+		url="${h2DBUrl};USER=${h2DBUserName};PASSWORD=${h2DBPassword}"
+		driverClassName="${h2DBDriverName}" doc:name="Generic Database Configuration" />
+	<db:template-query name="fetch_all_courses" doc:name="Template Query">
+		<db:parameterized-query file="query_all_courses.sql" />
+	</db:template-query>
+	<db:template-query name="fetch_course_by_id"
+		doc:name="Template Query">
+        <db:parameterized-query file="query_course_by_id.sql"/>
+        <db:in-param name="id" type="INTEGER" defaultValue="#[flowVars.courseId]"/>
+	</db:template-query>
+	<db:template-query name="fetch_all_latest_courses"
+		doc:name="Template Query">
+        <db:parameterized-query file="query_all_latest_courses.sql"/>
+        <db:in-param name="duration" defaultValue="#[message.inboundProperties.'http.query.params'.duration]"/>
+	</db:template-query>
+	<http:listener-config name="course-provider-api-httpListenerConfig"
+		host="${httpHost}" port="${httpPort}" doc:name="HTTP Listener Configuration" />
 </mule>

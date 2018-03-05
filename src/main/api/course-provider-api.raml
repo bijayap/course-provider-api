@@ -58,7 +58,6 @@ traits:
 /courses:
   type:
     readOnlycollection:
-      #exampleCollection: !include examples/response_examples/courses-example.raml
       exampleCollection: !include examples/response_examples/courses-example.json
       exampleDataNotFound: !include examples/response_examples/data_not_found.json
   
@@ -78,7 +77,6 @@ traits:
   /{courseId}:
     type:
       collection-item:
-        #exampleItem: !include examples/response_examples/course-example.raml
         exampleItem: !include examples/response_examples/course-example.json
         exampleDataNotFound: !include examples/response_examples/data_not_found.json
       
